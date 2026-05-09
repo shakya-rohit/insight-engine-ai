@@ -1,0 +1,8 @@
+<div
+  class="message-wrapper"
+  [ngClass]="message.role === 'user' ? 'user-wrapper' : 'bot-wrapper'"
+>
+  <div class="bubble" [ngClass]="message.role === 'user' ? 'user' : 'bot'">
+    {{ message.text }}
+  </div>
+</div>

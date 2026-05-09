@@ -1,0 +1,29 @@
+.message-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.user-wrapper {
+  justify-content: flex-end;
+}
+
+.bot-wrapper {
+  justify-content: flex-start;
+}
+
+.bubble {
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  max-width: 60%;
+  font-size: 14px;
+}
+
+.user {
+  background: #e3f2fd;
+}
+
+.bot {
+  background: #ffffff;
+  border: 1px solid #eee;
+}

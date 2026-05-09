@@ -1,0 +1,49 @@
+:host {
+  flex: 1;
+  display: flex;
+  height: 100%;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  background: #f5f7fb;
+  border-left: 1px solid #ddd;
+}
+
+.messages {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  /* 👇 ADD THIS */
+  background: #f9fafc;
+}
+
+.input-box {
+  display: flex;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #ddd;
+}
+
+.input-box input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.input-box button {
+  margin-left: 10px;
+  padding: 12px 18px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 10px;
+}

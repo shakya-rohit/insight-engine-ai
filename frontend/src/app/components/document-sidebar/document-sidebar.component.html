@@ -1,0 +1,15 @@
+<div class="sidebar">
+  <h2>Documents</h2>
+
+  <div class="doc" *ngFor="let doc of documents">
+    <div class="icon">📄</div>
+    <div>
+      <div class="name">{{ doc.name }}</div>
+      <div class="date">Uploaded: {{ doc.date }}</div>
+    </div>
+  </div>
+
+  <input type="file" (change)="onFileSelected($event)" />
+
+  <button class="upload-btn">+ Upload PDF</button>
+</div>
