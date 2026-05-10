@@ -9,6 +9,7 @@ import { LayoutComponent } from './components/layout/layout.component';
 import { DocumentSidebarComponent } from './components/document-sidebar/document-sidebar.component';
 import { ChatWindowComponent } from './components/chat-window/chat-window.component';
 import { ChatMessageComponent } from './components/chat-message/chat-message.component';
+import { HeaderComponent } from './components/header/header.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { ChatMessageComponent } from './components/chat-message/chat-message.com
     DocumentSidebarComponent,
     ChatWindowComponent,
     ChatMessageComponent,
+    HeaderComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, FormsModule, HttpClientModule],
   providers: [],
