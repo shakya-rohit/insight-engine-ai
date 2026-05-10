@@ -1,8 +1,16 @@
-# 🚀 InsightEngine AI — AI-Powered Knowledge Retrieval System
+# 🚀 InsightEngine — AI-Powered Knowledge Retrieval System
 
 InsightEngine AI is a full-stack AI platform that enables users to intelligently query their own data using a hybrid retrieval architecture combining **Retrieval-Augmented Generation (RAG)** and **Knowledge Graphs (KG)**.
 
 The system supports semantic understanding, structured reasoning, and conversational querying across uploaded data sources.
+
+---
+
+# 🖼️ Application UI
+
+> 📌 A glimpse of the Insight Engine frontend interface — with many more features and enhancements coming soon.
+
+![InsightEngine AI UI](./screenshots/rag-ui-chat-image.png)
 
 ---
 
@@ -189,14 +197,6 @@ The Angular frontend provides:
 - ⌨️ Enter key message submission
 - 🔄 Auto-scrolling chat window
 - 🌐 Real-time FastAPI integration
-
----
-
-# 🖼️ Application UI
-
-> 📌 Add your latest application screenshot here
-
-![InsightEngine AI UI](./screenshots/rag-ui-chat-image.png)
 
 ---
 
