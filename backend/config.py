@@ -16,6 +16,7 @@ UPLOAD_DIR = DATA_DIR / "uploads"
 INDEX_FILE = DATA_DIR / "faiss_index.bin"
 CHUNKS_FILE = DATA_DIR / "chunks.pkl"
 KG_FILE = DATA_DIR / "kg.pkl"
+DOCUMENTS_FILE = DATA_DIR / "documents.json"
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 

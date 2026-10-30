@@ -183,6 +183,7 @@ This combines:
 | Endpoint      | Description               |
 | ------------- | ------------------------- |
 | `/upload`     | Upload a PDF or UTF-8 TXT |
+| `/documents`  | List uploaded documents   |
 | `/ask`        | RAG-only retrieval        |
 | `/hybrid-ask` | Hybrid RAG + KG retrieval |
 | `/kg-query`   | Knowledge Graph querying  |

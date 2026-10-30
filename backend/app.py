@@ -2,12 +2,14 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pypdf import PdfReader
-from config import MAX_PDF_PAGES, MAX_UPLOAD_BYTES, UPLOAD_DIR
+from config import DOCUMENTS_FILE, MAX_PDF_PAGES, MAX_UPLOAD_BYTES, UPLOAD_DIR
 from rag_faiss import initialize, ask_rag, add_document
 from hybrid_rag import hybrid_answer
 from kg_layer import update_kg, query_kg
 
 from pathlib import Path
+from datetime import datetime, timezone
+import json
 import uuid
 
 app = FastAPI(title="RAG API")
@@ -42,6 +44,57 @@ app.add_middleware(
 @app.get("/")
 def home():
     return {"message": "RAG API running 🚀"}
+
+
+def read_documents():
+    """Load persisted document metadata and include files from older uploads."""
+    try:
+        payload = json.loads(DOCUMENTS_FILE.read_text(encoding="utf-8"))
+        documents = payload.get("documents", []) if isinstance(payload, dict) else []
+        documents = [
+            doc for doc in documents
+            if isinstance(doc, dict)
+            and isinstance(doc.get("id"), str)
+            and isinstance(doc.get("name"), str)
+        ] if isinstance(documents, list) else []
+    except (OSError, json.JSONDecodeError):
+        documents = []
+
+    known_ids = {doc.get("id") for doc in documents if isinstance(doc, dict)}
+    for path in UPLOAD_DIR.iterdir():
+        if path.is_file() and path.name not in known_ids:
+            uploaded_at = datetime.fromtimestamp(
+                path.stat().st_mtime, tz=timezone.utc
+            ).isoformat()
+            documents.append({
+                "id": path.name,
+                "name": path.name,
+                "uploaded_at": uploaded_at,
+            })
+
+    return sorted(
+        documents,
+        key=lambda doc: str(doc.get("uploaded_at", "")),
+        reverse=True,
+    )
+
+
+def save_document_metadata(document):
+    documents = read_documents()
+    documents = [doc for doc in documents if doc.get("id") != document["id"]]
+    documents.append(document)
+
+    temporary_file = DOCUMENTS_FILE.with_name(f".{uuid.uuid4().hex}.tmp")
+    temporary_file.write_text(
+        json.dumps({"documents": documents}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    temporary_file.replace(DOCUMENTS_FILE)
+
+
+@app.get("/documents")
+def get_documents():
+    return {"documents": read_documents()}
 
 
 # -------------------------------
@@ -125,6 +178,12 @@ def upload_document(file: UploadFile = File(...)):
     except ValueError as exc:
         file_path.unlink(missing_ok=True)
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    save_document_metadata({
+        "id": file_path.name,
+        "name": original_filename,
+        "uploaded_at": datetime.now(timezone.utc).isoformat(),
+    })
 
     # 🔥 ONLY new chunks → KG
     new_chunks = chunks[old_len:]

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -6,12 +6,27 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './document-sidebar.component.html',
   styleUrls: ['./document-sidebar.component.css'],
 })
-export class DocumentSidebarComponent {
+export class DocumentSidebarComponent implements OnInit {
   documents: any[] = [];
 
   selectedFile: File | null = null;
 
   constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.loadDocuments();
+  }
+
+  loadDocuments() {
+    this.http
+      .get<{ documents: any[] }>('http://localhost:8000/documents')
+      .subscribe((res) => {
+        this.documents = res.documents.map((document) => ({
+          name: document.name,
+          date: document.uploaded_at?.slice(0, 10) ?? '',
+        }));
+      });
+  }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -35,11 +50,7 @@ export class DocumentSidebarComponent {
       .post('http://localhost:8000/upload', formData)
       .subscribe((res: any) => {
         console.log(res);
-
-        this.documents.push({
-          name: this.selectedFile?.name,
-          date: new Date().toISOString().split('T')[0],
-        });
+        this.loadDocuments();
 
         // reset selected file after upload
         this.selectedFile = null;
