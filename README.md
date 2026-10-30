@@ -206,8 +206,16 @@ The Angular frontend provides:
 
 ```bash
 pip install -r requirements.txt
+cp backend/.env.example backend/.env
+# Edit backend/.env and set OPENAI_API_KEY
+cd backend
 uvicorn app:app --reload
 ```
+
+The backend reads its OpenAI model names and generation token limit from
+`backend/.env`. Available settings are `OPENAI_CHAT_MODEL`,
+`OPENAI_EMBEDDING_MODEL`, and `OPENAI_MAX_OUTPUT_TOKENS`. Defaults are provided
+in `backend/.env.example`; `OPENAI_API_KEY` is also read by the OpenAI SDK.
 
 ---
 

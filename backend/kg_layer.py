@@ -1,4 +1,5 @@
 from openai import OpenAI
+from config import OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
 import pickle
 import os
 
@@ -36,9 +37,9 @@ Text:
 """
 
     response = client.responses.create(
-        model="gpt-4.1-mini",
+        model=OPENAI_CHAT_MODEL,
         input=prompt,
-        max_output_tokens=200
+        max_output_tokens=OPENAI_MAX_OUTPUT_TOKENS
     )
 
     raw = response.output_text

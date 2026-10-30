@@ -1,6 +1,7 @@
 from rag_faiss import retrieve
 from kg_layer import query_kg
 from openai import OpenAI
+from config import OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
 
 client = OpenAI()
 
@@ -45,9 +46,9 @@ Question:
 """
 
     response = client.responses.create(
-        model="gpt-4.1-mini",
+        model=OPENAI_CHAT_MODEL,
         input=prompt,
-        max_output_tokens=200
+        max_output_tokens=OPENAI_MAX_OUTPUT_TOKENS
     )
 
     return response.output_text

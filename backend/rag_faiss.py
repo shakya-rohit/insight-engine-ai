@@ -1,4 +1,9 @@
 from openai import OpenAI
+from config import (
+    OPENAI_CHAT_MODEL,
+    OPENAI_EMBEDDING_MODEL,
+    OPENAI_MAX_OUTPUT_TOKENS,
+)
 import numpy as np
 from pypdf import PdfReader
 import faiss
@@ -55,7 +60,7 @@ def chunk_text(text, source, chunk_size=500, overlap=100):
 # -------------------------------
 def get_embedding(text):
     response = client.embeddings.create(
-        model="text-embedding-3-small",
+        model=OPENAI_EMBEDDING_MODEL,
         input=text
     )
     return np.array(response.data[0].embedding, dtype="float32")
@@ -161,9 +166,9 @@ Question:
 """
 
     response = client.responses.create(
-        model="gpt-4.1-mini",
+        model=OPENAI_CHAT_MODEL,
         input=prompt,
-        max_output_tokens=200
+        max_output_tokens=OPENAI_MAX_OUTPUT_TOKENS
     )
 
     return response.output_text

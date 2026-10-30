@@ -1,0 +1,17 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+backend/.env
+
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local uploads and generated retrieval data
+backend/uploads/
+backend/*.pkl
+backend/*.pickle
+backend/faiss_index.bin
