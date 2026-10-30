@@ -16,7 +16,7 @@ The system supports semantic understanding, structured reasoning, and conversati
 
 ## ✨ Features
 
-- 📂 Upload and process user data
+- 📂 Upload and process PDF and UTF-8 text files
 - 🔍 Semantic retrieval using vector embeddings (FAISS)
 - 🧠 Knowledge Graph extraction using triplets
 - ⚡ Hybrid Retrieval (Vector Search + KG Search)
@@ -33,7 +33,7 @@ The system supports semantic understanding, structured reasoning, and conversati
 ```text
                 ┌────────────────────┐
                 │   User Uploads     │
-                │ PDFs / User Data   │
+                │ PDFs / TXT files  │
                 └─────────┬──────────┘
                           │
                           ▼
@@ -182,7 +182,7 @@ This combines:
 
 | Endpoint      | Description               |
 | ------------- | ------------------------- |
-| `/upload`     | Upload user data          |
+| `/upload`     | Upload a PDF or UTF-8 TXT |
 | `/ask`        | RAG-only retrieval        |
 | `/hybrid-ask` | Hybrid RAG + KG retrieval |
 | `/kg-query`   | Knowledge Graph querying  |
@@ -216,8 +216,10 @@ uvicorn app:app --reload
 
 The backend reads its OpenAI model names and generation token limit from
 `backend/.env`. Available settings are `OPENAI_CHAT_MODEL`,
-`OPENAI_EMBEDDING_MODEL`, and `OPENAI_MAX_OUTPUT_TOKENS`. Defaults are provided
-in `backend/.env.example`; `OPENAI_API_KEY` is also read by the OpenAI SDK.
+`OPENAI_EMBEDDING_MODEL`, `OPENAI_MAX_OUTPUT_TOKENS`, `MAX_UPLOAD_BYTES`, and
+`MAX_PDF_PAGES`. Defaults are provided in `backend/.env.example`;
+`OPENAI_API_KEY` is also read by the OpenAI SDK. Uploads are limited to 20 MiB;
+PDFs are additionally limited to 500 pages. TXT uploads must be UTF-8 encoded.
 
 ---
 

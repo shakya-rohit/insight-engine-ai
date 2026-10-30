@@ -11,6 +11,7 @@ from pypdf import PdfReader
 import faiss
 import pickle
 import os
+from pathlib import Path
 
 client = OpenAI()
 
@@ -111,12 +112,21 @@ def initialize():
 
 
 # -------------------------------
-# Add PDF to system (NEW)
+# Add a PDF or TXT document to the system
 # -------------------------------
-def add_pdf(file_path, index, chunks):
+def add_document(file_path, index, chunks, source_name=None):
     print(f"📄 Processing {file_path}...")
 
-    text = load_pdf(file_path)
+    if Path(file_path).suffix.lower() == ".pdf":
+        text = load_pdf(file_path)
+    elif Path(file_path).suffix.lower() == ".txt":
+        try:
+            text = Path(file_path).read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError as exc:
+            raise ValueError("TXT files must use UTF-8 encoding") from exc
+    else:
+        raise ValueError("Only PDF and TXT files can be indexed")
+
     text = clean_text(text)
 
     if not text:
@@ -125,7 +135,7 @@ def add_pdf(file_path, index, chunks):
             "OCR is needed before it can be indexed."
         )
 
-    new_chunks = chunk_text(text, os.path.basename(file_path))
+    new_chunks = chunk_text(text, source_name or os.path.basename(file_path))
     print(f"➕ New chunks: {len(new_chunks)}")
 
     new_embeddings = [get_embedding(c["text"]) for c in new_chunks]

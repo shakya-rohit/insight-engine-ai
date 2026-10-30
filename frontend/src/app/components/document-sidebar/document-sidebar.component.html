@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  <input type="file" (change)="onFileSelected($event)" />
+  <input type="file" accept=".pdf,.txt" (change)="onFileSelected($event)" />
 
-  <button class="upload-btn" (click)="uploadFile()">+ Upload PDF</button>
+  <button class="upload-btn" (click)="uploadFile()">+ Upload document</button>
 </div>
