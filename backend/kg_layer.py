@@ -1,7 +1,9 @@
 from openai import OpenAI
 from config import KG_FILE, OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
+import logging
 import pickle
 
+logger = logging.getLogger(__name__)
 client = OpenAI()
 
 # -------------------------------
@@ -56,6 +58,7 @@ Text:
 # Update KG from chunks
 # -------------------------------
 def update_kg(chunks):
+    logger.info("Extracting knowledge graph facts from %d chunks", len(chunks))
     kg = load_kg()
 
     for chunk in chunks:
@@ -63,6 +66,7 @@ def update_kg(chunks):
         kg.extend(triplets)
 
     save_kg(kg)
+    logger.info("Knowledge graph saved with %d facts", len(kg))
 
 
 # -------------------------------

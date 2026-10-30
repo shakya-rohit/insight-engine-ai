@@ -217,8 +217,9 @@ uvicorn app:app --reload
 
 The backend reads its OpenAI model names and generation token limit from
 `backend/.env`. Available settings are `OPENAI_CHAT_MODEL`,
-`OPENAI_EMBEDDING_MODEL`, `OPENAI_MAX_OUTPUT_TOKENS`, `MAX_UPLOAD_BYTES`, and
-`MAX_PDF_PAGES`. Defaults are provided in `backend/.env.example`;
+`OPENAI_EMBEDDING_MODEL`, `OPENAI_MAX_OUTPUT_TOKENS`, `LOG_LEVEL`,
+`MAX_UPLOAD_BYTES`, and `MAX_PDF_PAGES`. Defaults are provided in
+`backend/.env.example`;
 `OPENAI_API_KEY` is also read by the OpenAI SDK. Uploads are limited to 20 MiB;
 PDFs are additionally limited to 500 pages. TXT uploads must be UTF-8 encoded.
 

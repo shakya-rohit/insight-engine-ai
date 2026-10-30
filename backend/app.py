@@ -10,16 +10,19 @@ from kg_layer import update_kg, query_kg
 from pathlib import Path
 from datetime import datetime, timezone
 import json
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="RAG API")
 
 # -------------------------------
 # Load system ONCE
 # -------------------------------
-print("🚀 Initializing RAG system...")
+logger.info("Initializing retrieval system")
 index, chunks = initialize()
-print("✅ RAG ready!\n")
+logger.info("Retrieval system ready with %d indexed chunks", len(chunks))
 
 
 # -------------------------------
@@ -136,6 +139,13 @@ def upload_document(file: UploadFile = File(...)):
         file_path.unlink(missing_ok=True)
         raise
 
+    logger.info(
+        "Validated document upload id=%s type=%s size_bytes=%d",
+        file_path.stem,
+        extension,
+        total_bytes,
+    )
+
     if extension == ".pdf":
         try:
             reader = PdfReader(file_path)
@@ -155,7 +165,7 @@ def upload_document(file: UploadFile = File(...)):
         except Exception as exc:
             file_path.unlink(missing_ok=True)
             raise HTTPException(status_code=415, detail="PDF is invalid or unreadable") from exc
-    else:
+    elif extension == ".txt":
         try:
             text = file_path.read_text(encoding="utf-8-sig")
             if "\x00" in text:
@@ -166,6 +176,9 @@ def upload_document(file: UploadFile = File(...)):
         except HTTPException:
             file_path.unlink(missing_ok=True)
             raise
+    else:
+        file_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=415, detail="Only PDF and TXT files are accepted")
 
     global index, chunks
 
@@ -184,10 +197,21 @@ def upload_document(file: UploadFile = File(...)):
         "name": original_filename,
         "uploaded_at": datetime.now(timezone.utc).isoformat(),
     })
+    logger.info(
+        "Indexed document id=%s type=%s chunks_added=%d",
+        file_path.stem,
+        extension,
+        len(chunks) - old_len,
+    )
 
     # 🔥 ONLY new chunks → KG
     new_chunks = chunks[old_len:]
     update_kg(new_chunks[:20])  # limit for cost
+    logger.info(
+        "Knowledge graph update completed document_id=%s chunks_processed=%d",
+        file_path.stem,
+        min(len(new_chunks), 20),
+    )
 
     return {
         "message": f"{original_filename} added",

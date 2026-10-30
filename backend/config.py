@@ -1,6 +1,7 @@
 """Environment-backed configuration for the InsightEngine backend."""
 
 import os
+import logging
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,6 +10,15 @@ from dotenv import load_dotenv
 # Load the backend's .env regardless of the directory used to start Uvicorn.
 BACKEND_DIR = Path(__file__).resolve().parent
 load_dotenv(BACKEND_DIR / ".env")
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+if LOG_LEVEL not in logging.getLevelNamesMapping():
+    raise ValueError(f"Invalid LOG_LEVEL: {LOG_LEVEL}")
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 
 # Runtime files live outside the source modules and are excluded from Git.
 DATA_DIR = BACKEND_DIR / "data"

@@ -12,7 +12,9 @@ import faiss
 import pickle
 import os
 from pathlib import Path
+import logging
 
+logger = logging.getLogger(__name__)
 client = OpenAI()
 
 # -------------------------------
@@ -100,10 +102,11 @@ def load_data():
 # -------------------------------
 def initialize():
     if INDEX_FILE.exists() and CHUNKS_FILE.exists():
-        print("⚡ Loading existing index...")
-        return load_data()
+        index, chunks = load_data()
+        logger.info("Loaded persisted vector index with %d chunks", len(chunks))
+        return index, chunks
 
-    print("🆕 Creating new empty index...")
+    logger.info("No persisted vector index found; creating an empty index")
     dim = 1536  # embedding size for text-embedding-3-small
     index = faiss.IndexFlatL2(dim)
     chunks = []
@@ -115,11 +118,12 @@ def initialize():
 # Add a PDF or TXT document to the system
 # -------------------------------
 def add_document(file_path, index, chunks, source_name=None):
-    print(f"📄 Processing {file_path}...")
+    extension = Path(file_path).suffix.lower()
+    logger.info("Processing uploaded document type=%s", extension)
 
-    if Path(file_path).suffix.lower() == ".pdf":
+    if extension == ".pdf":
         text = load_pdf(file_path)
-    elif Path(file_path).suffix.lower() == ".txt":
+    elif extension == ".txt":
         try:
             text = Path(file_path).read_text(encoding="utf-8-sig")
         except UnicodeDecodeError as exc:
@@ -136,7 +140,7 @@ def add_document(file_path, index, chunks, source_name=None):
         )
 
     new_chunks = chunk_text(text, source_name or os.path.basename(file_path))
-    print(f"➕ New chunks: {len(new_chunks)}")
+    logger.info("Created %d text chunks from uploaded document", len(new_chunks))
 
     new_embeddings = [get_embedding(c["text"]) for c in new_chunks]
 
