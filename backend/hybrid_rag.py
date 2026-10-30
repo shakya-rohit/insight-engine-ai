@@ -1,24 +1,17 @@
 from rag_faiss import retrieve
 from kg_layer import query_kg
 from openai import OpenAI
+from textwrap import dedent
 from config import OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
 
 client = OpenAI()
 
 def hybrid_answer(query, index, chunks):
-    # -------------------
-    # RAG retrieval
-    # -------------------
+    # Combine semantic passages and structured facts in one answer prompt.
     rag_docs = retrieve(query, index, chunks)
 
-    # -------------------
-    # KG retrieval
-    # -------------------
     kg_facts = query_kg(query)
 
-    # -------------------
-    # Build contexts
-    # -------------------
     context_rag = "\n\n".join(
         [f"[{c['source']}]: {c['text']}" for c in rag_docs]
     )
@@ -27,23 +20,20 @@ def hybrid_answer(query, index, chunks):
         [f"{s} {r} {o}" for s, r, o in kg_facts]
     )
 
-    # -------------------
-    # Final prompt
-    # -------------------
-    prompt = f"""
-Use BOTH structured knowledge and context.
+    prompt = dedent("""\
+        Use BOTH structured knowledge and context.
 
-Structured Knowledge:
-{context_kg}
+        Structured Knowledge:
+        {context_kg}
 
-Context:
-{context_rag}
+        Context:
+        {context_rag}
 
-If answer is not found, say "I don't know".
+        If answer is not found, say "I don't know".
 
-Question:
-{query}
-"""
+        Question:
+        {query}
+        """).format(context_kg=context_kg, context_rag=context_rag, query=query)
 
     response = client.responses.create(
         model=OPENAI_CHAT_MODEL,

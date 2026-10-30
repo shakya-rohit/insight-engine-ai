@@ -98,6 +98,8 @@ backend/
 ├── kg_layer.py
 ├── hybrid_rag.py
 ├── config.py
+├── document_store.py
+├── document_processing.py
 └── data/                 # Local uploads, FAISS index, chunks, and KG dump (gitignored)
 
 frontend/
@@ -211,8 +213,7 @@ The Angular frontend provides:
 pip install -r backend/requirements.txt
 cp backend/.env.example backend/.env
 # Edit backend/.env and set OPENAI_API_KEY
-cd backend
-uvicorn app:app --reload
+python -m uvicorn app:app --app-dir backend --reload --reload-dir backend
 ```
 
 The backend reads its OpenAI model names and generation token limit from

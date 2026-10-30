@@ -2,13 +2,12 @@ from openai import OpenAI
 from config import KG_FILE, OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
 import logging
 import pickle
+from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 client = OpenAI()
 
-# -------------------------------
-# Load / Save KG
-# -------------------------------
+# Read and write the locally persisted knowledge graph.
 def load_kg():
     if KG_FILE.exists():
         with open(KG_FILE, "rb") as f:
@@ -20,20 +19,18 @@ def save_kg(kg):
         pickle.dump(kg, f)
 
 
-# -------------------------------
-# Extract triplets using LLM
-# -------------------------------
+# Extract subject-relation-object facts from a text chunk.
 def extract_triplets(text):
-    prompt = f"""
-Extract relationships as triplets:
-(subject, relation, object)
+    prompt = dedent("""\
+        Extract relationships as triplets:
+        (subject, relation, object)
 
-Return ONLY in format:
-("A","relation","B")
+        Return ONLY in format:
+        ("A","relation","B")
 
-Text:
-{text[:1000]}
-"""
+        Text:
+        {text}
+        """).format(text=text[:1000])
 
     response = client.responses.create(
         model=OPENAI_CHAT_MODEL,
@@ -54,9 +51,7 @@ Text:
     return triplets
 
 
-# -------------------------------
-# Update KG from chunks
-# -------------------------------
+# Add extracted facts from newly indexed chunks to the graph.
 def update_kg(chunks):
     logger.info("Extracting knowledge graph facts from %d chunks", len(chunks))
     kg = load_kg()
@@ -69,22 +64,9 @@ def update_kg(chunks):
     logger.info("Knowledge graph saved with %d facts", len(kg))
 
 
-# -------------------------------
-# Query KG
-# -------------------------------
-# def query_kg(question):
-#     kg = load_kg()
-#     results = []
-
-#     for s, r, o in kg:
-#         if s.lower() in question.lower():
-#             results.append((s, r, o))
-
-#     return results[:5]
-
+# Rank graph facts by their overlap with the question.
 def query_kg(question):
     kg = load_kg()
-    results = []
 
     q = question.lower()
     q_tokens = set(q.split())
@@ -98,9 +80,7 @@ def query_kg(question):
 
         score = 0
 
-        # -----------------------
-        # Token matching
-        # -----------------------
+        # Entity matches count more than relation matches.
         for token in q_tokens:
             if token in s_l:
                 score += 2
@@ -109,28 +89,17 @@ def query_kg(question):
             if token in r_l:
                 score += 1
 
-        # -----------------------
-        # Exact phrase bonus
-        # -----------------------
+        # Boost facts whose subject or object appears as a phrase.
         if s_l in q:
             score += 3
         if o_l in q:
             score += 3
 
-        # -----------------------
-        # Keep relevant results
-        # -----------------------
         if score > 0:
             scored_results.append((score, (s, r, o)))
 
-    # -----------------------
-    # Sort by score
-    # -----------------------
     scored_results.sort(reverse=True, key=lambda x: x[0])
 
-    # -----------------------
-    # Return top results
-    # -----------------------
     results = [item[1] for item in scored_results[:5]]
 
     return results
