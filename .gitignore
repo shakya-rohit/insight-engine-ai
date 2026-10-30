@@ -11,7 +11,5 @@ __pycache__/
 venv/
 
 # Local uploads and generated retrieval data
+backend/data/
 backend/uploads/
-backend/*.pkl
-backend/*.pickle
-backend/faiss_index.bin

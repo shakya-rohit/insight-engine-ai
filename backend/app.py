@@ -1,7 +1,8 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from pydantic import BaseModel
+from config import UPLOAD_DIR
 from rag_faiss import initialize, ask_rag, add_pdf
 from hybrid_rag import hybrid_answer
 from kg_layer import update_kg, query_kg
@@ -10,9 +11,6 @@ import shutil
 import os
 
 app = FastAPI(title="RAG API")
-
-UPLOAD_DIR = "uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # -------------------------------
 # Load system ONCE
@@ -51,7 +49,7 @@ def home():
 # -------------------------------
 @app.post("/upload")
 def upload_pdf(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    file_path = UPLOAD_DIR / os.path.basename(file.filename)
 
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -60,7 +58,10 @@ def upload_pdf(file: UploadFile = File(...)):
 
     old_len = len(chunks)
 
-    index, chunks = add_pdf(file_path, index, chunks)
+    try:
+        index, chunks = add_pdf(file_path, index, chunks)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     # 🔥 ONLY new chunks → KG
     new_chunks = chunks[old_len:]

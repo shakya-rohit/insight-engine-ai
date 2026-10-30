@@ -97,9 +97,11 @@ backend/
 ├── rag_faiss.py
 ├── kg_layer.py
 ├── hybrid_rag.py
+├── config.py
+└── data/                 # Local uploads, FAISS index, chunks, and KG dump (gitignored)
 
 frontend/
-├── angular-app/
+└── src/app/              # Angular UI
 ```
 
 ---
@@ -205,7 +207,7 @@ The Angular frontend provides:
 ## Backend Setup
 
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 cp backend/.env.example backend/.env
 # Edit backend/.env and set OPENAI_API_KEY
 cd backend
@@ -222,7 +224,7 @@ in `backend/.env.example`; `OPENAI_API_KEY` is also read by the OpenAI SDK.
 ## Frontend Setup
 
 ```bash
-cd angular-app
+cd frontend
 npm install
 ng serve
 ```

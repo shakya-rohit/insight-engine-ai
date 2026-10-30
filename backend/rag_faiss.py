@@ -1,5 +1,7 @@
 from openai import OpenAI
 from config import (
+    CHUNKS_FILE,
+    INDEX_FILE,
     OPENAI_CHAT_MODEL,
     OPENAI_EMBEDDING_MODEL,
     OPENAI_MAX_OUTPUT_TOKENS,
@@ -11,9 +13,6 @@ import pickle
 import os
 
 client = OpenAI()
-
-INDEX_FILE = "faiss_index.bin"
-CHUNKS_FILE = "chunks.pkl"
 
 # -------------------------------
 # Load PDF
@@ -80,7 +79,7 @@ def build_faiss_index(embeddings):
 # Save data
 # -------------------------------
 def save_data(index, chunks):
-    faiss.write_index(index, INDEX_FILE)
+    faiss.write_index(index, str(INDEX_FILE))
     with open(CHUNKS_FILE, "wb") as f:
         pickle.dump(chunks, f)
 
@@ -89,7 +88,7 @@ def save_data(index, chunks):
 # Load data
 # -------------------------------
 def load_data():
-    index = faiss.read_index(INDEX_FILE)
+    index = faiss.read_index(str(INDEX_FILE))
     with open(CHUNKS_FILE, "rb") as f:
         chunks = pickle.load(f)
     return index, chunks
@@ -99,7 +98,7 @@ def load_data():
 # Initialize system
 # -------------------------------
 def initialize():
-    if os.path.exists(INDEX_FILE) and os.path.exists(CHUNKS_FILE):
+    if INDEX_FILE.exists() and CHUNKS_FILE.exists():
         print("⚡ Loading existing index...")
         return load_data()
 
@@ -119,6 +118,12 @@ def add_pdf(file_path, index, chunks):
 
     text = load_pdf(file_path)
     text = clean_text(text)
+
+    if not text:
+        raise ValueError(
+            "This PDF has no extractable text. It may be scanned or image-based; "
+            "OCR is needed before it can be indexed."
+        )
 
     new_chunks = chunk_text(text, os.path.basename(file_path))
     print(f"➕ New chunks: {len(new_chunks)}")

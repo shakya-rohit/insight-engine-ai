@@ -1,17 +1,14 @@
 from openai import OpenAI
-from config import OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
+from config import KG_FILE, OPENAI_CHAT_MODEL, OPENAI_MAX_OUTPUT_TOKENS
 import pickle
-import os
 
 client = OpenAI()
-
-KG_FILE = "kg.pkl"
 
 # -------------------------------
 # Load / Save KG
 # -------------------------------
 def load_kg():
-    if os.path.exists(KG_FILE):
+    if KG_FILE.exists():
         with open(KG_FILE, "rb") as f:
             return pickle.load(f)
     return []
